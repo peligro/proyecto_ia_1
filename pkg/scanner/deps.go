@@ -10,14 +10,55 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/peligro/proyecto_ia_1/pkg/report"
 )
+
+// init carga variables de entorno desde .env si existe
+func init() {
+	// Carga .env desde el directorio actual o padre
+	_ = godotenv.Load()      // ./ .env
+	_ = godotenv.Load("../.env") // ../.env (para cuando se ejecuta desde cmd/)
+}
+
+// getConfig devuelve el valor de una env var con fallback
+func getConfig(key, defaultValue string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultValue
+}
+
+// getOSVEndpoint devuelve el endpoint de OSV con validación básica
+func getOSVEndpoint() string {
+	endpoint := getConfig("OSV_API_ENDPOINT", "https://api.osv.dev/v1/query")
+	// Validación mínima: debe ser https y terminar en /query
+	if !strings.HasPrefix(endpoint, "https://") || !strings.HasSuffix(endpoint, "/query") {
+		// Log de advertencia pero no falla (fallback seguro)
+		fmt.Fprintf(os.Stderr, "⚠️  Warning: OSV_API_ENDPOINT may be invalid, using default\n")
+		return "https://api.osv.dev/v1/query"
+	}
+	return endpoint
+}
+
+// getOSVTimeout devuelve el timeout en segundos
+func getOSVTimeout() time.Duration {
+	timeoutStr := getConfig("OSV_API_TIMEOUT", "30")
+	var timeout int
+	fmt.Sscanf(timeoutStr, "%d", &timeout)
+	if timeout <= 0 {
+		timeout = 30
+	}
+	return time.Duration(timeout) * time.Second
+}
+
 type PackageJSON struct {
 	Name            string            `json:"name"`
 	Version         string            `json:"version"`
 	Dependencies    map[string]string `json:"dependencies,omitempty"`
 	DevDependencies map[string]string `json:"devDependencies,omitempty"`
 }
+
 // OSV API structures
 type OSVQuery struct {
 	Package struct {
@@ -71,7 +112,6 @@ func ScanNpmDependencies(pkgJSONPath string) ([]report.Finding, error) {
 
 	var findings []report.Finding
 
-	// Scan dependencies
 	for pkgName, version := range pkg.Dependencies {
 		pkgFindings, err := queryOSV(pkgName, cleanVersion(version), "npm")
 		if err != nil {
@@ -81,7 +121,6 @@ func ScanNpmDependencies(pkgJSONPath string) ([]report.Finding, error) {
 		findings = append(findings, pkgFindings...)
 	}
 
-	// Scan dev dependencies
 	for pkgName, version := range pkg.DevDependencies {
 		pkgFindings, err := queryOSV(pkgName, cleanVersion(version), "npm")
 		if err != nil {
@@ -137,8 +176,11 @@ func queryOSV(pkgName, version, ecosystem string) ([]report.Finding, error) {
 		return nil, err
 	}
 
-	// OSV.dev API endpoint
-	resp, err := http.Post("https://api.osv.dev/v1/query", "application/json", bytes.NewBuffer(queryBody))
+	endpoint := getOSVEndpoint()
+	timeout := getOSVTimeout()
+
+	client := &http.Client{Timeout: timeout}
+	resp, err := client.Post(endpoint, "application/json", bytes.NewBuffer(queryBody))
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +203,6 @@ func queryOSV(pkgName, version, ecosystem string) ([]report.Finding, error) {
 	var findings []report.Finding
 
 	for _, vuln := range osvResp.Vulns {
-		// Extract fixed version
 		var fixedIn string
 		for _, affected := range vuln.Affected {
 			for _, r := range affected.Ranges {
@@ -174,26 +215,21 @@ func queryOSV(pkgName, version, ecosystem string) ([]report.Finding, error) {
 			}
 		}
 
-		// Extract CVSS score
 		var cvss float64
 		var severity report.Severity
 		for _, s := range vuln.Severity {
 			if s.Type == "CVSS_V3" {
-				// Parse CVSS score from string like "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
-				// For now, use a simple heuristic
 				if strings.Contains(s.Score, "CVSS:3") {
-					cvss = 7.5 // Default to high if CVSS v3 present
+					cvss = 7.5
 					severity = report.High
 				}
 			}
 		}
 
-		// Map severity
 		if severity == "" {
 			severity = report.Medium
 		}
 
-		// Extract references
 		var references []string
 		for _, ref := range vuln.References {
 			references = append(references, ref.URL)
