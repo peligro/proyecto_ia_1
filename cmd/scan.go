@@ -33,8 +33,8 @@ func init() {
 	scanCmd.Flags().StringVarP(&scanType, "type", "t", "deps", "Scan type: deps, web, api")
 	scanCmd.Flags().StringVarP(&scanDir, "dir", "d", ".", "Directory to scan")
 	scanCmd.Flags().StringVarP(&scanURL, "url", "u", "", "URL to scan (for web/api types)")
-	scanCmd.Flags().StringVarP(&output, "output", "o", "json", "Output format: json, markdown")
-	scanCmd.Flags().StringVarP(&lang, "lang", "l", "en", "Output language: en, es")
+	scanCmd.Flags().StringVarP(&output, "output", "o", "json", "Output format: json, markdown, pdf")
+	scanCmd.Flags().StringVarP(&lang, "lang", "l", "en", "Output language: en, es, fr, pt, de")
 
 	rootCmd.AddCommand(scanCmd)
 }
@@ -106,6 +106,8 @@ func generateReport(findings []report.Finding) error {
 		return report.GenerateJSON(findings, scanType, target, i18n.T)
 	case "markdown":
 		return report.GenerateMarkdown(findings, scanType, target, i18n.T)
+	case "pdf":
+		return report.GeneratePDF(findings, scanType, target)
 	default:
 		return report.GenerateJSON(findings, scanType, target, i18n.T)
 	}

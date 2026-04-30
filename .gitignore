@@ -1,1 +1,50 @@
+# === Binarios compilados ===
+ai-audit
+ai-audit.exe
+ai-audit-*
+*.exe
+
+# === Directorios de release/build ===
+release/
+dist/
+build/
+bin/
+
+# === Archivos de empaquetado ===
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+
+# === Reportes generados por la herramienta ===
+report.json
+report.md
+*.pdf
+es-report.json
+en-report.json
+
+# === Go specific ===
+# Dependencies
+vendor/
+go.sum
+
+# Test coverage
+coverage.out
+
+# Debug
+*.pprof
+*.trace
+
+# === IDE / Editor ===
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# === OS specific ===
+.DS_Store
+Thumbs.db
+
+# === Environment ===
 .env
+*.local
