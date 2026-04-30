@@ -1,0 +1,44 @@
+{
+  "scan_type": "dependencies",
+  "target": ".",
+  "scanned_at": "2026-04-30T15:15:35.513313416Z",
+  "total_findings": 3,
+  "findings": [
+    {
+      "id": "DEP-express",
+      "title": "Vulnerable dependency: express",
+      "description": "Express before 4.17.3 allows Open Redirect attacks via the redirect function.",
+      "severity": "LOW",
+      "category": "dependency",
+      "package": "express",
+      "version": "4.17.1",
+      "fixed_in": "4.17.3",
+      "cve": "CVE-2022-24999",
+      "found_at": "2026-04-30T15:15:35.513292882Z"
+    },
+    {
+      "id": "DEP-lodash",
+      "title": "Vulnerable dependency: lodash",
+      "description": "Lodash versions prior to 4.17.21 are vulnerable to Command Injection via the template function.",
+      "severity": "HIGH",
+      "category": "dependency",
+      "package": "lodash",
+      "version": "4.17.15",
+      "fixed_in": "4.17.21",
+      "cve": "CVE-2021-23337",
+      "found_at": "2026-04-30T15:15:35.513303289Z"
+    },
+    {
+      "id": "DEP-axios",
+      "title": "Vulnerable dependency: axios",
+      "description": "axios is vulnerable to Inefficient Regular Expression Complexity",
+      "severity": "MEDIUM",
+      "category": "dependency",
+      "package": "axios",
+      "version": "0.21.0",
+      "fixed_in": "0.21.2",
+      "cve": "CVE-2021-3749",
+      "found_at": "2026-04-30T15:15:35.513309085Z"
+    }
+  ]
+}
