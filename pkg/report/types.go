@@ -34,17 +34,17 @@ type Finding struct {
 }
 
 type Report struct {
-	ScanType   string     `json:"scan_type"`
-	Target     string     `json:"target"`
-	ScannedAt  time.Time  `json:"scanned_at"`
-	TotalFindings int     `json:"total_findings"`
-	Findings   []Finding  `json:"findings"`
+	ScanType      string    `json:"scan_type"`
+	Target        string    `json:"target"`
+	ScannedAt     time.Time `json:"scanned_at"`
+	TotalFindings int       `json:"total_findings"`
+	Findings      []Finding `json:"findings"`
 }
 
-func GenerateJSON(findings []Finding) error {
+func GenerateJSON(findings []Finding, scanType, target string) error {
 	report := Report{
-		ScanType:      "dependencies",
-		Target:        ".",
+		ScanType:      scanType,
+		Target:        target,
 		ScannedAt:     time.Now(),
 		TotalFindings: len(findings),
 		Findings:      findings,
@@ -67,8 +67,10 @@ func GenerateJSON(findings []Finding) error {
 	return nil
 }
 
-func GenerateMarkdown(findings []Finding) error {
+func GenerateMarkdown(findings []Finding, scanType, target string) error {
 	md := fmt.Sprintf("# Security Audit Report\n\n")
+	md += fmt.Sprintf("**Scan Type:** %s\n", scanType)
+	md += fmt.Sprintf("**Target:** %s\n", target)
 	md += fmt.Sprintf("**Scanned at:** %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 	md += fmt.Sprintf("**Total findings:** %d\n\n", len(findings))
 

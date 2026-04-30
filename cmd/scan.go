@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	//"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/peligro/proyecto_ia_1/pkg/scanner"
 	"github.com/peligro/proyecto_ia_1/pkg/report"
@@ -44,7 +44,10 @@ func runScan() error {
 	case "deps":
 		findings, err = scanDependencies()
 	case "web":
-		return fmt.Errorf("web scanner not implemented yet")
+		if scanURL == "" {
+			return fmt.Errorf("--url flag is required for web scan")
+		}
+		findings, err = scanWeb(scanURL)
 	case "api":
 		return fmt.Errorf("api scanner not implemented yet")
 	default:
@@ -82,13 +85,27 @@ func scanDependencies() ([]report.Finding, error) {
 	return nil, fmt.Errorf("no supported dependency file found (package.json or go.mod)")
 }
 
+func scanWeb(target string) ([]report.Finding, error) {
+	fmt.Printf("🔍 Scanning web application: %s...\n", target)
+
+	// Instanciar scanner con timeout de 10 segundos
+	ws := scanner.NewWebScanner(10 * time.Second)
+	return ws.Scan(target)
+}
+
 func generateReport(findings []report.Finding) error {
+	// Determinar el target correcto
+	target := scanDir
+	if scanType == "web" && scanURL != "" {
+		target = scanURL
+	}
+
 	switch output {
 	case "json":
-		return report.GenerateJSON(findings)
+		return report.GenerateJSON(findings, scanType, target)
 	case "markdown":
-		return report.GenerateMarkdown(findings)
+		return report.GenerateMarkdown(findings, scanType, target)
 	default:
-		return report.GenerateJSON(findings)
+		return report.GenerateJSON(findings, scanType, target)
 	}
 }
