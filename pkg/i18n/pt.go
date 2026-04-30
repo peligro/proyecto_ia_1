@@ -1,0 +1,70 @@
+package i18n
+
+func ptDict() map[string]string {
+	return map[string]string{
+		// CLI messages
+		"msg.scanning_deps":       "🔍 Escaneando dependências em %s...",
+		"msg.scanning_web":        "🔍 Escaneando aplicação web: %s...",
+		"msg.report_saved":        "✅ Relatório salvo em %s",
+		"msg.warning_osv":         "⚠️  Aviso: Falha ao consultar OSV para %s: %v",
+		"msg.error_invalid_url":   "URL inválida: %w",
+		"msg.error_fetch":         "Não foi possível recuperar %s: %v",
+		"msg.error_no_deps":       "nenhum arquivo de dependências suportado encontrado (package.json ou go.mod)",
+		"msg.error_url_required":  "A flag --url é necessária para escaneamento web",
+		"msg.error_invalid_type":  "tipo de escaneamento inválido: %s",
+
+		// Finding titles
+		"title.web_no_waf":         "Nenhum Web Application Firewall detectado",
+		"title.web_missing_header": "Cabeçalho de segurança ausente: %s",
+		"title.web_disclosure":     "Divulgação de informação via cabeçalho %s",
+		"title.web_cache_control":  "Diretivas de cache ausentes ou fracas",
+		"title.web_pragma":         "Cabeçalho Pragma: no-cache ausente",
+		"title.web_ssl_connect":    "Falha na conexão SSL/TLS",
+		"title.web_ssl_old_tls":    "Versão TLS obsoleta em uso",
+		"title.web_ssl_expired":    "Certificado SSL expirado",
+		"title.web_ssl_expiring":   "Certificado SSL expira em breve",
+		"title.web_dns_resolve":    "Falha na resolução DNS",
+		"title.web_dns_multi_ip":   "Múltiplos endereços IP detectados",
+		"title.web_method":         "Método HTTP perigoso habilitado: %s",
+		"title.web_old_nginx":      "Versão obsoleta do Nginx detectada",
+		"title.web_express":        "Framework Express.js detectado",
+		"title.web_cors_misconfig": "Configuração incorreta de CORS detectada",
+		"title.web_cors_wildcard":  "Política CORS muito permissiva",
+		"title.deps_vuln":          "Vulnerabilidade em %s: %s",
+
+		// Finding descriptions
+		"desc.web_no_waf":            "A aplicação não parece estar protegida por um WAF. Isso aumenta a exposição a ataques como injeção SQL, XSS e outras vulnerabilidades do OWASP Top 10. Recomendação: Implementar um Web Application Firewall (WAF) como Cloudflare, AWS WAF ou ModSecurity para filtrar tráfego malicioso.",
+		"desc.web_missing_hsts":      "Cabeçalho HSTS ausente. Isso permite ataques de SSL stripping.",
+		"desc.web_missing_xcto":      "Cabeçalho X-Content-Type-Options ausente. Isso permite ataques de MIME type sniffing.",
+		"desc.web_missing_xfo":       "Cabeçalho X-Frame-Options ausente. A aplicação é vulnerável a ataques de clickjacking.",
+		"desc.web_missing_csp":       "Cabeçalho Content-Security-Policy ausente. Isso aumenta os riscos de XSS e injeção.",
+		"desc.web_missing_referrer":  "Cabeçalho Referrer-Policy ausente. Isso pode vazar informações sensíveis via cabeçalho Referer.",
+		"desc.web_missing_permissions": "Cabeçalho Permissions-Policy ausente. As funcionalidades do navegador não estão restritas.",
+		"desc.web_disclosure_server": "O cabeçalho Server revela tecnologia e versão do servidor: %s. Esta informação pode ajudar atacantes a identificar vulnerabilidades conhecidas.",
+		"desc.web_cache_weak":        "As respostas não incluem diretivas de cache adequadas. Dados sensíveis podem ser cacheados por navegadores ou proxies.",
+		"desc.web_pragma_missing":    "O cabeçalho Pragma não está configurado como no-cache, o que pode permitir cache por proxies HTTP/1.0.",
+		"desc.web_ssl_connect":       "Não foi possível estabelecer conexão TLS: %v",
+		"desc.web_ssl_old":           "O servidor suporta TLS %d.%d que está obsoleto. O mínimo deveria ser TLS 1.2",
+		"desc.web_ssl_expired":       "O certificado expirou em %s",
+		"desc.web_ssl_expiring":      "O certificado expira em %s (menos de 30 dias)",
+		"desc.web_dns_fail":          "Não foi possível resolver %s: %v",
+		"desc.web_dns_multi":         "O domínio %s resolve para %d IPs, possível balanceamento de carga ou CDN",
+		"desc.web_method_dangerous":  "O método %s está habilitado e pode permitir modificações não autorizadas ou divulgação de informação.",
+		"desc.web_nginx_old":         "O cabeçalho Server revela versão do Nginx: %s. Versões antigas podem ter vulnerabilidades conhecidas.",
+		"desc.web_express_detected":  "O cabeçalho X-Powered-By revela o framework Express.js. Certifique-se de que esteja atualizado para a última versão.",
+		"desc.web_cors_cred_wildcard": "O servidor permite credenciais com origem wildcard (Access-Control-Allow-Origin: * com Allow-Credentials: true). Isso é um risco de segurança.",
+		"desc.web_cors_wildcard":     "O servidor permite requisições de qualquer origem (Access-Control-Allow-Origin: *). Isso pode expor dados sensíveis a sites maliciosos.",
+
+		// Recommendations
+		"rec.web_no_waf":             "Implementar um Web Application Firewall (WAF) como Cloudflare, AWS WAF ou ModSecurity para filtrar tráfego malicioso e prevenir ataques de injeção.",
+		"rec.web_missing_hsts":       "Adicionar cabeçalho Strict-Transport-Security com max-age >= 31536000 para forçar conexões HTTPS.",
+		"rec.web_missing_xcto":       "Adicionar cabeçalho X-Content-Type-Options: nosniff para prevenir MIME type sniffing.",
+		"rec.web_missing_xfo":        "Adicionar cabeçalho X-Frame-Options: DENY ou SAMEORIGIN para prevenir ataques de clickjacking.",
+		"rec.web_missing_csp":        "Implementar cabeçalho Content-Security-Policy com diretivas estritas para prevenir ataques XSS e injeção.",
+		"rec.web_missing_referrer":   "Adicionar cabeçalho Referrer-Policy: strict-origin-when-cross-origin para controlar informações de referer.",
+		"rec.web_missing_permissions": "Adicionar cabeçalho Permissions-Policy para restringir funcionalidades do navegador e reduzir superfície de ataque.",
+		"rec.web_cache_control":      "Adicionar cabeçalhos Cache-Control: no-store, no-cache, private para respostas sensíveis e prevenir vazamento de dados.",
+		"rec.web_method":             "Desabilitar métodos HTTP desnecessários (PUT, DELETE, TRACE, CONNECT) em endpoints para reduzir superfície de ataque.",
+		"rec.web_cors":               "Configurar CORS para permitir apenas origens confiáveis específicas. Nunca usar wildcard (*) com credenciais.",
+	}
+}

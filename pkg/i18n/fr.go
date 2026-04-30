@@ -1,0 +1,70 @@
+package i18n
+
+func frDict() map[string]string {
+	return map[string]string{
+		// CLI messages
+		"msg.scanning_deps":       "🔍 Analyse des dépendances dans %s...",
+		"msg.scanning_web":        "🔍 Analyse de l'application web: %s...",
+		"msg.report_saved":        "✅ Rapport enregistré dans %s",
+		"msg.warning_osv":         "⚠️  Avertissement: Échec de la requête OSV pour %s: %v",
+		"msg.error_invalid_url":   "URL invalide: %w",
+		"msg.error_fetch":         "Impossible de récupérer %s: %v",
+		"msg.error_no_deps":       "aucun fichier de dépendances pris en charge trouvé (package.json ou go.mod)",
+		"msg.error_url_required":  "Le drapeau --url est requis pour l'analyse web",
+		"msg.error_invalid_type":  "type d'analyse invalide: %s",
+
+		// Finding titles
+		"title.web_no_waf":         "Aucun Web Application Firewall détecté",
+		"title.web_missing_header": "En-tête de sécurité manquant: %s",
+		"title.web_disclosure":     "Divulgation d'information via l'en-tête %s",
+		"title.web_cache_control":  "Directives de cache absentes ou faibles",
+		"title.web_pragma":         "En-tête Pragma: no-cache manquant",
+		"title.web_ssl_connect":    "Échec de la connexion SSL/TLS",
+		"title.web_ssl_old_tls":    "Version TLS obsolète en utilisation",
+		"title.web_ssl_expired":    "Certificat SSL expiré",
+		"title.web_ssl_expiring":   "Certificat SSL expire bientôt",
+		"title.web_dns_resolve":    "Échec de la résolution DNS",
+		"title.web_dns_multi_ip":   "Plusieurs adresses IP détectées",
+		"title.web_method":         "Méthode HTTP dangereuse activée: %s",
+		"title.web_old_nginx":      "Version obsolète de Nginx détectée",
+		"title.web_express":        "Framework Express.js détecté",
+		"title.web_cors_misconfig": "Mauvaise configuration CORS détectée",
+		"title.web_cors_wildcard":  "Politique CORS trop permissive",
+		"title.deps_vuln":          "Vulnérabilité dans %s: %s",
+
+		// Finding descriptions
+		"desc.web_no_waf":            "L'application ne semble pas être protégée par un WAF. Cela augmente l'exposition aux attaques comme l'injection SQL, XSS et autres vulnérabilités OWASP Top 10. Recommandation: Implémenter un Web Application Firewall (WAF) tel que Cloudflare, AWS WAF ou ModSecurity pour filtrer le trafic malveillant.",
+		"desc.web_missing_hsts":      "En-tête HSTS manquant. Cela permet les attaques de SSL stripping.",
+		"desc.web_missing_xcto":      "En-tête X-Content-Type-Options manquant. Cela permet les attaques de MIME type sniffing.",
+		"desc.web_missing_xfo":       "En-tête X-Frame-Options manquant. L'application est vulnérable aux attaques de clickjacking.",
+		"desc.web_missing_csp":       "En-tête Content-Security-Policy manquant. Cela augmente les risques de XSS et d'injection.",
+		"desc.web_missing_referrer":  "En-tête Referrer-Policy manquant. Cela peut fuiter des informations sensibles via l'en-tête Referer.",
+		"desc.web_missing_permissions": "En-tête Permissions-Policy manquant. Les fonctionnalités du navigateur ne sont pas restreintes.",
+		"desc.web_disclosure_server": "L'en-tête Server révèle la technologie et la version du serveur: %s. Cette information peut aider les attaquants à identifier des vulnérabilités connues.",
+		"desc.web_cache_weak":        "Les réponses n'incluent pas de directives de cache appropriées. Des données sensibles peuvent être mises en cache par les navigateurs ou proxies.",
+		"desc.web_pragma_missing":    "L'en-tête Pragma n'est pas configuré comme no-cache, ce qui peut permettre la mise en cache par des proxies HTTP/1.0.",
+		"desc.web_ssl_connect":       "Impossible d'établir la connexion TLS: %v",
+		"desc.web_ssl_old":           "Le serveur supporte TLS %d.%d qui est déprécié. Le minimum devrait être TLS 1.2",
+		"desc.web_ssl_expired":       "Le certificat a expiré le %s",
+		"desc.web_ssl_expiring":      "Le certificat expire le %s (moins de 30 jours)",
+		"desc.web_dns_fail":          "Impossible de résoudre %s: %v",
+		"desc.web_dns_multi":         "Le domaine %s résout vers %d IPs, possible équilibrage de charge ou CDN",
+		"desc.web_method_dangerous":  "La méthode %s est activée et peut permettre des modifications non autorisées ou une divulgation d'information.",
+		"desc.web_nginx_old":         "L'en-tête Server révèle la version de Nginx: %s. Les versions anciennes peuvent avoir des vulnérabilités connues.",
+		"desc.web_express_detected":  "L'en-tête X-Powered-By révèle le framework Express.js. Assurez-vous qu'il soit mis à jour vers la dernière version.",
+		"desc.web_cors_cred_wildcard": "Le serveur autorise les credentials avec origine wildcard (Access-Control-Allow-Origin: * avec Allow-Credentials: true). C'est un risque de sécurité.",
+		"desc.web_cors_wildcard":     "Le serveur autorise les requêtes depuis n'importe quelle origine (Access-Control-Allow-Origin: *). Cela peut exposer des données sensibles à des sites malveillants.",
+
+		// Recommendations
+		"rec.web_no_waf":             "Implémenter un Web Application Firewall (WAF) tel que Cloudflare, AWS WAF ou ModSecurity pour filtrer le trafic malveillant et prévenir les attaques d'injection.",
+		"rec.web_missing_hsts":       "Ajouter l'en-tête Strict-Transport-Security avec max-age >= 31536000 pour forcer les connexions HTTPS.",
+		"rec.web_missing_xcto":       "Ajouter l'en-tête X-Content-Type-Options: nosniff pour prévenir le MIME type sniffing.",
+		"rec.web_missing_xfo":        "Ajouter l'en-tête X-Frame-Options: DENY ou SAMEORIGIN pour prévenir les attaques de clickjacking.",
+		"rec.web_missing_csp":        "Implémenter un en-tête Content-Security-Policy avec des directives strictes pour prévenir les attaques XSS et d'injection.",
+		"rec.web_missing_referrer":   "Ajouter l'en-tête Referrer-Policy: strict-origin-when-cross-origin pour contrôler les informations de referer.",
+		"rec.web_missing_permissions": "Ajouter l'en-tête Permissions-Policy pour restreindre les fonctionnalités du navigateur et réduire la surface d'attaque.",
+		"rec.web_cache_control":      "Ajouter les en-têtes Cache-Control: no-store, no-cache, private pour les réponses sensibles afin de prévenir la fuite de données.",
+		"rec.web_method":             "Désactiver les méthodes HTTP inutiles (PUT, DELETE, TRACE, CONNECT) sur les endpoints pour réduire la surface d'attaque.",
+		"rec.web_cors":               "Configurer CORS pour autoriser uniquement des origines de confiance spécifiques. Ne jamais utiliser de wildcard (*) avec des credentials.",
+	}
+}

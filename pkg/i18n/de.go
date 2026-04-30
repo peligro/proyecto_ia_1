@@ -1,0 +1,70 @@
+package i18n
+
+func deDict() map[string]string {
+	return map[string]string{
+		// CLI messages
+		"msg.scanning_deps":       "🔍 Scanne von Abhängigkeiten in %s...",
+		"msg.scanning_web":        "🔍 Scanne der Webanwendung: %s...",
+		"msg.report_saved":        "✅ Bericht gespeichert in %s",
+		"msg.warning_osv":         "⚠️  Warnung: Abfrage von OSV für %s fehlgeschlagen: %v",
+		"msg.error_invalid_url":   "Ungültige URL: %w",
+		"msg.error_fetch":         "Konnte %s nicht abrufen: %v",
+		"msg.error_no_deps":       "keine unterstützte Abhängigkeitsdatei gefunden (package.json oder go.mod)",
+		"msg.error_url_required":  "Die Flagge --url ist für Web-Scans erforderlich",
+		"msg.error_invalid_type":  "ungültiger Scan-Typ: %s",
+
+		// Finding titles
+		"title.web_no_waf":         "Keine Web Application Firewall erkannt",
+		"title.web_missing_header": "Fehlender Sicherheits-Header: %s",
+		"title.web_disclosure":     "Informationsweitergabe über Header %s",
+		"title.web_cache_control":  "Fehlende oder schwache Cache-Direktiven",
+		"title.web_pragma":         "Fehlender Pragma: no-cache Header",
+		"title.web_ssl_connect":    "SSL/TLS-Verbindung fehlgeschlagen",
+		"title.web_ssl_old_tls":    "Veraltete TLS-Version im Einsatz",
+		"title.web_ssl_expired":    "SSL-Zertifikat abgelaufen",
+		"title.web_ssl_expiring":   "SSL-Zertifikat läuft bald ab",
+		"title.web_dns_resolve":    "DNS-Auflösung fehlgeschlagen",
+		"title.web_dns_multi_ip":   "Mehrere IP-Adressen erkannt",
+		"title.web_method":         "Gefährliche HTTP-Methode aktiviert: %s",
+		"title.web_old_nginx":      "Veraltete Nginx-Version erkannt",
+		"title.web_express":        "Express.js-Framework erkannt",
+		"title.web_cors_misconfig": "Fehlkonfiguration von CORS erkannt",
+		"title.web_cors_wildcard":  "Zu permissive CORS-Richtlinie",
+		"title.deps_vuln":          "Schwachstelle in %s: %s",
+
+		// Finding descriptions
+		"desc.web_no_waf":            "Die Anwendung scheint nicht durch eine WAF geschützt zu sein. Dies erhöht die Angriffsfläche für SQL-Injection, XSS und andere OWASP Top 10-Schwachstellen. Empfehlung: Implementieren Sie eine Web Application Firewall (WAF) wie Cloudflare, AWS WAF oder ModSecurity, um bösartigen Traffic zu filtern.",
+		"desc.web_missing_hsts":      "Fehlender HSTS-Header. Dies ermöglicht SSL-Stripping-Angriffe.",
+		"desc.web_missing_xcto":      "Fehlender X-Content-Type-Options-Header. Dies ermöglicht MIME-Type-Sniffing-Angriffe.",
+		"desc.web_missing_xfo":       "Fehlender X-Frame-Options-Header. Die Anwendung ist anfällig für Clickjacking-Angriffe.",
+		"desc.web_missing_csp":       "Fehlender Content-Security-Policy-Header. Dies erhöht die Risiken für XSS- und Injections-Angriffe.",
+		"desc.web_missing_referrer":  "Fehlender Referrer-Policy-Header. Dies kann sensible Informationen über den Referer-Header preisgeben.",
+		"desc.web_missing_permissions": "Fehlender Permissions-Policy-Header. Browser-Funktionen sind nicht eingeschränkt.",
+		"desc.web_disclosure_server": "Der Server-Header gibt Technologie und Version des Servers preis: %s. Diese Information kann Angreifern helfen, bekannte Schwachstellen zu identifizieren.",
+		"desc.web_cache_weak":        "Antworten enthalten keine geeigneten Cache-Direktiven. Sensible Daten können von Browsern oder Proxies zwischengespeichert werden.",
+		"desc.web_pragma_missing":    "Der Pragma-Header ist nicht als no-cache konfiguriert, was Caching durch HTTP/1.0-Proxies ermöglichen kann.",
+		"desc.web_ssl_connect":       "TLS-Verbindung konnte nicht hergestellt werden: %v",
+		"desc.web_ssl_old":           "Der Server unterstützt TLS %d.%d, was veraltet ist. Mindestens TLS 1.2 sollte verwendet werden",
+		"desc.web_ssl_expired":       "Das Zertifikat ist am %s abgelaufen",
+		"desc.web_ssl_expiring":      "Das Zertifikat läuft am %s ab (weniger als 30 Tage)",
+		"desc.web_dns_fail":          "Konnte %s nicht auflösen: %v",
+		"desc.web_dns_multi":         "Die Domain %s löst zu %d IPs auf, mögliches Load-Balancing oder CDN",
+		"desc.web_method_dangerous":  "Die Methode %s ist aktiviert und kann unbefugte Änderungen oder Informationsweitergabe ermöglichen.",
+		"desc.web_nginx_old":         "Der Server-Header gibt die Nginx-Version preis: %s. Ältere Versionen können bekannte Schwachstellen aufweisen.",
+		"desc.web_express_detected":  "Der X-Powered-By-Header gibt das Express.js-Framework preis. Stellen Sie sicher, dass es auf die neueste Version aktualisiert ist.",
+		"desc.web_cors_cred_wildcard": "Der Server erlaubt Credentials mit Wildcard-Origin (Access-Control-Allow-Origin: * mit Allow-Credentials: true). Dies ist ein Sicherheitsrisiko.",
+		"desc.web_cors_wildcard":     "Der Server erlaubt Anfragen von jeder Origin (Access-Control-Allow-Origin: *). Dies kann sensible Daten gegenüber bösartigen Sites preisgeben.",
+
+		// Recommendations
+		"rec.web_no_waf":             "Implementieren Sie eine Web Application Firewall (WAF) wie Cloudflare, AWS WAF oder ModSecurity, um bösartigen Traffic zu filtern und Injection-Angriffe zu verhindern.",
+		"rec.web_missing_hsts":       "Fügen Sie den Strict-Transport-Security-Header mit max-age >= 31536000 hinzu, um HTTPS-Verbindungen zu erzwingen.",
+		"rec.web_missing_xcto":       "Fügen Sie den X-Content-Type-Options: nosniff-Header hinzu, um MIME-Type-Sniffing zu verhindern.",
+		"rec.web_missing_xfo":        "Fügen Sie den X-Frame-Options: DENY- oder SAMEORIGIN-Header hinzu, um Clickjacking-Angriffe zu verhindern.",
+		"rec.web_missing_csp":        "Implementieren Sie einen Content-Security-Policy-Header mit strengen Direktiven, um XSS- und Injections-Angriffe zu verhindern.",
+		"rec.web_missing_referrer":   "Fügen Sie den Referrer-Policy: strict-origin-when-cross-origin-Header hinzu, um Referer-Informationen zu kontrollieren.",
+		"rec.web_missing_permissions": "Fügen Sie den Permissions-Policy-Header hinzu, um Browser-Funktionen einzuschränken und die Angriffsfläche zu reduzieren.",
+		"rec.web_cache_control":      "Fügen Sie die Cache-Control-Header: no-store, no-cache, private für sensible Antworten hinzu, um Datenlecks zu verhindern.",
+		"rec.web_method":             "Deaktivieren Sie unnötige HTTP-Methoden (PUT, DELETE, TRACE, CONNECT) auf Endpoints, um die Angriffsfläche zu reduzieren.",
+		"rec.web_cors":               "Konfigurieren Sie CORS, um nur spezifische vertrauenswürdige Origins zuzulassen. Verwenden Sie niemals Wildcard (*) mit Credentials.",
+	}
+}

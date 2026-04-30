@@ -1,105 +1,105 @@
 {
   "scan_type": "web",
   "target": "https://cesarcancino.com",
-  "scanned_at": "2026-04-30T18:24:26.023464972Z",
+  "scanned_at": "2026-04-30T18:54:01.132907841Z",
   "total_findings": 10,
   "findings": [
     {
       "id": "ARQ-A1",
-      "title": "No Web Application Firewall detected",
-      "description": "The application does not appear to be protected by a WAF. This increases exposure to attacks like SQL injection, XSS, and other OWASP Top 10 vulnerabilities. Recommendation: Implement a Web Application Firewall (WAF) such as Cloudflare, AWS WAF, or ModSecurity to filter malicious traffic.",
+      "title": "Keine Web Application Firewall erkannt",
+      "description": "Die Anwendung scheint nicht durch eine WAF geschützt zu sein. Dies erhöht die Angriffsfläche für SQL-Injection, XSS und andere OWASP Top 10-Schwachstellen. Empfehlung: Implementieren Sie eine Web Application Firewall (WAF) wie Cloudflare, AWS WAF oder ModSecurity, um bösartigen Traffic zu filtern.",
       "severity": "HIGH",
       "category": "architecture",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_no_waf",
-      "found_at": "2026-04-30T18:24:24.615042885Z"
+      "recommendation": "Implementieren Sie eine Web Application Firewall (WAF) wie Cloudflare, AWS WAF oder ModSecurity, um bösartigen Traffic zu filtern und Injection-Angriffe zu verhindern.",
+      "found_at": "2026-04-30T18:53:59.734690394Z"
     },
     {
       "id": "API-M1-XContentTypeOptions",
-      "title": "Missing security header: X-Content-Type-Options",
-      "description": "Missing X-Content-Type-Options header. This allows MIME type sniffing attacks.",
+      "title": "Fehlender Sicherheits-Header: X-Content-Type-Options",
+      "description": "Fehlender X-Content-Type-Options-Header. Dies ermöglicht MIME-Type-Sniffing-Angriffe.",
       "severity": "MEDIUM",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_missing_xcto",
-      "found_at": "2026-04-30T18:24:25.49443437Z"
+      "recommendation": "Fügen Sie den X-Content-Type-Options: nosniff-Header hinzu, um MIME-Type-Sniffing zu verhindern.",
+      "found_at": "2026-04-30T18:54:00.612187906Z"
     },
     {
       "id": "API-M1-XFrameOptions",
-      "title": "Missing security header: X-Frame-Options",
-      "description": "Missing X-Frame-Options header. Application is vulnerable to clickjacking attacks.",
+      "title": "Fehlender Sicherheits-Header: X-Frame-Options",
+      "description": "Fehlender X-Frame-Options-Header. Die Anwendung ist anfällig für Clickjacking-Angriffe.",
       "severity": "MEDIUM",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_missing_xfo",
-      "found_at": "2026-04-30T18:24:25.49444331Z"
+      "recommendation": "Fügen Sie den X-Frame-Options: DENY- oder SAMEORIGIN-Header hinzu, um Clickjacking-Angriffe zu verhindern.",
+      "found_at": "2026-04-30T18:54:00.612198801Z"
     },
     {
       "id": "API-M1-ContentSecurityPolicy",
-      "title": "Missing security header: CSP",
-      "description": "Missing Content-Security-Policy header. This increases XSS and injection attack risks.",
+      "title": "Fehlender Sicherheits-Header: CSP",
+      "description": "Fehlender Content-Security-Policy-Header. Dies erhöht die Risiken für XSS- und Injections-Angriffe.",
       "severity": "MEDIUM",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_missing_csp",
-      "found_at": "2026-04-30T18:24:25.494452319Z"
+      "recommendation": "Implementieren Sie einen Content-Security-Policy-Header mit strengen Direktiven, um XSS- und Injections-Angriffe zu verhindern.",
+      "found_at": "2026-04-30T18:54:00.61221277Z"
     },
     {
       "id": "API-M1-ReferrerPolicy",
-      "title": "Missing security header: Referrer-Policy",
-      "description": "Missing Referrer-Policy header. This may leak sensitive information via Referer header.",
+      "title": "Fehlender Sicherheits-Header: Referrer-Policy",
+      "description": "Fehlender Referrer-Policy-Header. Dies kann sensible Informationen über den Referer-Header preisgeben.",
       "severity": "LOW",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_missing_referrer",
-      "found_at": "2026-04-30T18:24:25.494464192Z"
+      "recommendation": "Fügen Sie den Referrer-Policy: strict-origin-when-cross-origin-Header hinzu, um Referer-Informationen zu kontrollieren.",
+      "found_at": "2026-04-30T18:54:00.612269062Z"
     },
     {
       "id": "API-M1-PermissionsPolicy",
-      "title": "Missing security header: Permissions-Policy",
-      "description": "Missing Permissions-Policy header. Browser features are not restricted.",
+      "title": "Fehlender Sicherheits-Header: Permissions-Policy",
+      "description": "Fehlender Permissions-Policy-Header. Browser-Funktionen sind nicht eingeschränkt.",
       "severity": "LOW",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_missing_permissions",
-      "found_at": "2026-04-30T18:24:25.494501278Z"
+      "recommendation": "Fügen Sie den Permissions-Policy-Header hinzu, um Browser-Funktionen einzuschränken und die Angriffsfläche zu reduzieren.",
+      "found_at": "2026-04-30T18:54:00.612282751Z"
     },
     {
       "id": "API-M1-StrictTransportSecurity",
-      "title": "Missing security header: HSTS",
-      "description": "Missing HSTS header. This allows SSL stripping attacks.",
+      "title": "Fehlender Sicherheits-Header: HSTS",
+      "description": "Fehlender HSTS-Header. Dies ermöglicht SSL-Stripping-Angriffe.",
       "severity": "HIGH",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_missing_hsts",
-      "found_at": "2026-04-30T18:24:25.494511684Z"
+      "recommendation": "Fügen Sie den Strict-Transport-Security-Header mit max-age \u003e= 31536000 hinzu, um HTTPS-Verbindungen zu erzwingen.",
+      "found_at": "2026-04-30T18:54:00.612293227Z"
     },
     {
       "id": "WEB-B3-Server",
-      "title": "Information disclosure via Server header",
-      "description": "The Server header reveals Server technology and version: Apache. This information can help attackers identify known vulnerabilities.",
+      "title": "Informationsweitergabe über Header Server",
+      "description": "Der Server-Header gibt Technologie und Version des Servers preis: Apache. Diese Information kann Angreifern helfen, bekannte Schwachstellen zu identifizieren.",
       "severity": "LOW",
       "category": "web",
       "component": "https://cesarcancino.com",
-      "found_at": "2026-04-30T18:24:25.494529843Z"
+      "found_at": "2026-04-30T18:54:00.612309081Z"
     },
     {
       "id": "API-B2",
-      "title": "Missing or weak cache control directives",
-      "description": "Responses do not include proper cache control headers. Sensitive data may be cached by browsers or proxies.",
+      "title": "Fehlende oder schwache Cache-Direktiven",
+      "description": "Antworten enthalten keine geeigneten Cache-Direktiven. Sensible Daten können von Browsern oder Proxies zwischengespeichert werden.",
       "severity": "LOW",
       "category": "api",
       "component": "https://cesarcancino.com",
-      "recommendation": "rec.web_cache_control",
-      "found_at": "2026-04-30T18:24:26.023334927Z"
+      "recommendation": "Fügen Sie die Cache-Control-Header: no-store, no-cache, private für sensible Antworten hinzu, um Datenlecks zu verhindern.",
+      "found_at": "2026-04-30T18:54:01.132668704Z"
     },
     {
       "id": "WEB-PRAGMA",
-      "title": "Missing Pragma: no-cache header",
-      "description": "The Pragma header is not set to no-cache, which may allow caching by HTTP/1.0 proxies.",
+      "title": "Fehlender Pragma: no-cache Header",
+      "description": "Der Pragma-Header ist nicht als no-cache konfiguriert, was Caching durch HTTP/1.0-Proxies ermöglichen kann.",
       "severity": "LOW",
       "category": "web",
-      "found_at": "2026-04-30T18:24:26.023345333Z"
+      "found_at": "2026-04-30T18:54:01.132678273Z"
     }
   ],
   "summary": {

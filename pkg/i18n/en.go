@@ -1,0 +1,70 @@
+package i18n
+
+func enDict() map[string]string {
+	return map[string]string{
+		// CLI messages
+		"msg.scanning_deps":       "🔍 Scanning dependencies in %s...",
+		"msg.scanning_web":        "🔍 Scanning web application: %s...",
+		"msg.report_saved":        "✅ Report saved to %s",
+		"msg.warning_osv":         "⚠️  Warning: Failed to query OSV for %s: %v",
+		"msg.error_invalid_url":   "invalid URL: %w",
+		"msg.error_fetch":         "Could not retrieve %s: %v",
+		"msg.error_no_deps":       "no supported dependency file found (package.json or go.mod)",
+		"msg.error_url_required":  "--url flag is required for web scan",
+		"msg.error_invalid_type":  "invalid scan type: %s",
+
+		// Finding titles
+		"title.web_no_waf":         "No Web Application Firewall detected",
+		"title.web_missing_header": "Missing security header: %s",
+		"title.web_disclosure":     "Information disclosure via %s header",
+		"title.web_cache_control":  "Missing or weak cache control directives",
+		"title.web_pragma":         "Missing Pragma: no-cache header",
+		"title.web_ssl_connect":    "SSL/TLS connection failed",
+		"title.web_ssl_old_tls":    "Outdated TLS version in use",
+		"title.web_ssl_expired":    "SSL certificate has expired",
+		"title.web_ssl_expiring":   "SSL certificate expiring soon",
+		"title.web_dns_resolve":    "DNS resolution failed",
+		"title.web_dns_multi_ip":   "Multiple IP addresses detected",
+		"title.web_method":         "Dangerous HTTP method enabled: %s",
+		"title.web_old_nginx":      "Outdated Nginx version detected",
+		"title.web_express":        "Express.js framework detected",
+		"title.web_cors_misconfig": "CORS misconfiguration detected",
+		"title.web_cors_wildcard":  "Overly permissive CORS policy",
+		"title.deps_vuln":          "Vulnerability in %s: %s",
+
+		// Finding descriptions
+		"desc.web_no_waf":            "The application does not appear to be protected by a WAF. This increases exposure to attacks like SQL injection, XSS, and other OWASP Top 10 vulnerabilities. Recommendation: Implement a Web Application Firewall (WAF) such as Cloudflare, AWS WAF, or ModSecurity to filter malicious traffic.",
+		"desc.web_missing_hsts":      "Missing HSTS header. This allows SSL stripping attacks.",
+		"desc.web_missing_xcto":      "Missing X-Content-Type-Options header. This allows MIME type sniffing attacks.",
+		"desc.web_missing_xfo":       "Missing X-Frame-Options header. Application is vulnerable to clickjacking attacks.",
+		"desc.web_missing_csp":       "Missing Content-Security-Policy header. This increases XSS and injection attack risks.",
+		"desc.web_missing_referrer":  "Missing Referrer-Policy header. This may leak sensitive information via Referer header.",
+		"desc.web_missing_permissions": "Missing Permissions-Policy header. Browser features are not restricted.",
+		"desc.web_disclosure_server": "The Server header reveals Server technology and version: %s. This information can help attackers identify known vulnerabilities.",
+		"desc.web_cache_weak":        "Responses do not include proper cache control headers. Sensitive data may be cached by browsers or proxies.",
+		"desc.web_pragma_missing":    "The Pragma header is not set to no-cache, which may allow caching by HTTP/1.0 proxies.",
+		"desc.web_ssl_connect":       "Could not establish TLS connection: %v",
+		"desc.web_ssl_old":           "Server supports TLS %d.%d which is deprecated. Minimum should be TLS 1.2",
+		"desc.web_ssl_expired":       "Certificate expired on %s",
+		"desc.web_ssl_expiring":      "Certificate expires on %s (less than 30 days)",
+		"desc.web_dns_fail":          "Could not resolve %s: %v",
+		"desc.web_dns_multi":         "Domain %s resolves to %d IPs, possible load balancing or CDN",
+		"desc.web_method_dangerous":  "The %s method is enabled and may allow unauthorized modifications or information disclosure.",
+		"desc.web_nginx_old":         "Server header reveals Nginx version: %s. Older versions may have known vulnerabilities.",
+		"desc.web_express_detected":  "X-Powered-By header reveals Express.js framework. Ensure it's updated to the latest version.",
+		"desc.web_cors_cred_wildcard": "Server allows credentials with wildcard origin (Access-Control-Allow-Origin: * with Allow-Credentials: true). This is a security risk.",
+		"desc.web_cors_wildcard":     "Server allows requests from any origin (Access-Control-Allow-Origin: *). This may expose sensitive data to malicious sites.",
+
+		// Recommendations
+		"rec.web_no_waf":             "Implement a Web Application Firewall (WAF) such as Cloudflare, AWS WAF, or ModSecurity to filter malicious traffic and prevent injection attacks.",
+		"rec.web_missing_hsts":       "Add Strict-Transport-Security header with max-age >= 31536000 to enforce HTTPS connections.",
+		"rec.web_missing_xcto":       "Add X-Content-Type-Options: nosniff header to prevent MIME type sniffing.",
+		"rec.web_missing_xfo":        "Add X-Frame-Options: DENY or SAMEORIGIN header to prevent clickjacking attacks.",
+		"rec.web_missing_csp":        "Implement a Content-Security-Policy header with strict directives to prevent XSS and injection attacks.",
+		"rec.web_missing_referrer":   "Add Referrer-Policy: strict-origin-when-cross-origin header to control referrer information.",
+		"rec.web_missing_permissions": "Add Permissions-Policy header to restrict browser features and reduce attack surface.",
+		"rec.web_cache_control":      "Add Cache-Control: no-store, no-cache, private headers for sensitive responses to prevent data leakage.",
+		"rec.web_method":             "Disable unnecessary HTTP methods (PUT, DELETE, TRACE, CONNECT) on endpoints to reduce attack surface.",
+		"rec.web_cors":               "Configure CORS to allow only specific trusted origins. Never use wildcard (*) with credentials.",
+	}
+}
