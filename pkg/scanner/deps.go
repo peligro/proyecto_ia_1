@@ -1,20 +1,61 @@
 package scanner
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
+
 	"github.com/peligro/proyecto_ia_1/pkg/report"
 )
-
-// package.json structure
 type PackageJSON struct {
 	Name            string            `json:"name"`
 	Version         string            `json:"version"`
 	Dependencies    map[string]string `json:"dependencies,omitempty"`
 	DevDependencies map[string]string `json:"devDependencies,omitempty"`
+}
+// OSV API structures
+type OSVQuery struct {
+	Package struct {
+		Name      string `json:"name"`
+		Ecosystem string `json:"ecosystem"`
+	} `json:"package"`
+	Version string `json:"version"`
+}
+
+type OSVResponse struct {
+	Vulns []OSVVulnerability `json:"vulns"`
+}
+
+type OSVVulnerability struct {
+	ID         string `json:"id"`
+	Summary    string `json:"summary"`
+	Details    string `json:"details"`
+	Severity   []struct {
+		Type  string `json:"type"`
+		Score string `json:"score"`
+	} `json:"severity"`
+	Affected []struct {
+		Package struct {
+			Name      string `json:"name"`
+			Ecosystem string `json:"ecosystem"`
+		} `json:"package"`
+		Ranges []struct {
+			Type   string `json:"type"`
+			Events []struct {
+				Introduced string `json:"introduced"`
+				Fixed      string `json:"fixed"`
+			} `json:"events"`
+		} `json:"ranges"`
+	} `json:"affected"`
+	References []struct {
+		Type string `json:"type"`
+		URL  string `json:"url"`
+	} `json:"references"`
 }
 
 func ScanNpmDependencies(pkgJSONPath string) ([]report.Finding, error) {
@@ -32,13 +73,21 @@ func ScanNpmDependencies(pkgJSONPath string) ([]report.Finding, error) {
 
 	// Scan dependencies
 	for pkgName, version := range pkg.Dependencies {
-		pkgFindings := checkVulnerability(pkgName, cleanVersion(version))
+		pkgFindings, err := queryOSV(pkgName, cleanVersion(version), "npm")
+		if err != nil {
+			fmt.Printf("⚠️  Warning: Failed to query OSV for %s: %v\n", pkgName, err)
+			continue
+		}
 		findings = append(findings, pkgFindings...)
 	}
 
 	// Scan dev dependencies
 	for pkgName, version := range pkg.DevDependencies {
-		pkgFindings := checkVulnerability(pkgName, cleanVersion(version))
+		pkgFindings, err := queryOSV(pkgName, cleanVersion(version), "npm")
+		if err != nil {
+			fmt.Printf("⚠️  Warning: Failed to query OSV for %s: %v\n", pkgName, err)
+			continue
+		}
 		findings = append(findings, pkgFindings...)
 	}
 
@@ -65,7 +114,11 @@ func ScanGoDependencies(goModPath string) ([]report.Finding, error) {
 			pkgName := parts[0]
 			version := cleanVersion(parts[1])
 			
-			pkgFindings := checkVulnerability(pkgName, version)
+			pkgFindings, err := queryOSV(pkgName, version, "Go")
+			if err != nil {
+				fmt.Printf("⚠️  Warning: Failed to query OSV for %s: %v\n", pkgName, err)
+				continue
+			}
 			findings = append(findings, pkgFindings...)
 		}
 	}
@@ -73,63 +126,106 @@ func ScanGoDependencies(goModPath string) ([]report.Finding, error) {
 	return findings, nil
 }
 
-func checkVulnerability(pkgName, version string) []report.Finding {
-	// This is a placeholder - in production, you'd query OSV.dev API
-	// For now, we'll return mock findings for demonstration
-	
-	var findings []report.Finding
+func queryOSV(pkgName, version, ecosystem string) ([]report.Finding, error) {
+	query := OSVQuery{}
+	query.Package.Name = pkgName
+	query.Package.Ecosystem = ecosystem
+	query.Version = version
 
-	// Example: Check for known vulnerable packages
-	vulnerablePackages := map[string]struct {
-		Severity report.Severity
-		CVE      string
-		FixedIn  string
-		Desc     string
-	}{
-		"lodash": {
-			Severity: report.High,
-			CVE:      "CVE-2021-23337",
-			FixedIn:  "4.17.21",
-			Desc:     "Lodash versions prior to 4.17.21 are vulnerable to Command Injection via the template function.",
-		},
-		"axios": {
-			Severity: report.Medium,
-			CVE:      "CVE-2021-3749",
-			FixedIn:  "0.21.2",
-			Desc:     "axios is vulnerable to Inefficient Regular Expression Complexity",
-		},
-		"express": {
-			Severity: report.Low,
-			CVE:      "CVE-2022-24999",
-			FixedIn:  "4.17.3",
-			Desc:     "Express before 4.17.3 allows Open Redirect attacks via the redirect function.",
-		},
+	queryBody, err := json.Marshal(query)
+	if err != nil {
+		return nil, err
 	}
 
-	if vuln, exists := vulnerablePackages[pkgName]; exists {
-		findings = append(findings, report.Finding{
-			ID:          fmt.Sprintf("DEP-%s", pkgName),
-			Title:       fmt.Sprintf("Vulnerable dependency: %s", pkgName),
-			Description: vuln.Desc,
-			Severity:    vuln.Severity,
+	// OSV.dev API endpoint
+	resp, err := http.Post("https://api.osv.dev/v1/query", "application/json", bytes.NewBuffer(queryBody))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("OSV API returned status %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var osvResp OSVResponse
+	if err := json.Unmarshal(body, &osvResp); err != nil {
+		return nil, err
+	}
+
+	var findings []report.Finding
+
+	for _, vuln := range osvResp.Vulns {
+		// Extract fixed version
+		var fixedIn string
+		for _, affected := range vuln.Affected {
+			for _, r := range affected.Ranges {
+				for _, event := range r.Events {
+					if event.Fixed != "" {
+						fixedIn = event.Fixed
+						break
+					}
+				}
+			}
+		}
+
+		// Extract CVSS score
+		var cvss float64
+		var severity report.Severity
+		for _, s := range vuln.Severity {
+			if s.Type == "CVSS_V3" {
+				// Parse CVSS score from string like "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+				// For now, use a simple heuristic
+				if strings.Contains(s.Score, "CVSS:3") {
+					cvss = 7.5 // Default to high if CVSS v3 present
+					severity = report.High
+				}
+			}
+		}
+
+		// Map severity
+		if severity == "" {
+			severity = report.Medium
+		}
+
+		// Extract references
+		var references []string
+		for _, ref := range vuln.References {
+			references = append(references, ref.URL)
+		}
+
+		finding := report.Finding{
+			ID:          vuln.ID,
+			Title:       fmt.Sprintf("Vulnerability in %s: %s", pkgName, vuln.Summary),
+			Description: vuln.Details,
+			Severity:    severity,
 			Category:    "dependency",
 			Package:     pkgName,
 			Version:     version,
-			FixedIn:     vuln.FixedIn,
-			CVE:         vuln.CVE,
+			FixedIn:     fixedIn,
+			CVE:         vuln.ID,
+			CVSS:        cvss,
+			References:  references,
 			FoundAt:     time.Now(),
-		})
+		}
+
+		findings = append(findings, finding)
 	}
 
-	return findings
+	return findings, nil
 }
 
 func cleanVersion(v string) string {
-	// Remove ^, ~, >=, etc.
 	v = strings.TrimPrefix(v, "^")
 	v = strings.TrimPrefix(v, "~")
 	v = strings.TrimPrefix(v, ">=")
 	v = strings.TrimPrefix(v, ">")
 	v = strings.TrimPrefix(v, "=")
+	v = strings.TrimPrefix(v, "v")
 	return strings.TrimSpace(v)
 }
