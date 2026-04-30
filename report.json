@@ -1,80 +1,97 @@
 {
   "scan_type": "web",
   "target": "https://cesarcancino.com",
-  "scanned_at": "2026-04-30T18:02:19.239164064Z",
+  "scanned_at": "2026-04-30T18:24:26.023464972Z",
   "total_findings": 10,
   "findings": [
     {
-      "id": "WEB-NO-WAF",
+      "id": "ARQ-A1",
       "title": "No Web Application Firewall detected",
       "description": "The application does not appear to be protected by a WAF. This increases exposure to attacks like SQL injection, XSS, and other OWASP Top 10 vulnerabilities. Recommendation: Implement a Web Application Firewall (WAF) such as Cloudflare, AWS WAF, or ModSecurity to filter malicious traffic.",
       "severity": "HIGH",
-      "category": "web",
-      "found_at": "2026-04-30T18:02:17.701699098Z"
+      "category": "architecture",
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_no_waf",
+      "found_at": "2026-04-30T18:24:24.615042885Z"
     },
     {
-      "id": "WEB-MISSING-StrictTransportSecurity",
-      "title": "Missing security header: Strict-Transport-Security",
-      "description": "Missing HSTS header. This allows SSL stripping attacks.",
-      "severity": "HIGH",
-      "category": "web",
-      "found_at": "2026-04-30T18:02:18.587414439Z"
-    },
-    {
-      "id": "WEB-MISSING-XContentTypeOptions",
+      "id": "API-M1-XContentTypeOptions",
       "title": "Missing security header: X-Content-Type-Options",
       "description": "Missing X-Content-Type-Options header. This allows MIME type sniffing attacks.",
       "severity": "MEDIUM",
       "category": "web",
-      "found_at": "2026-04-30T18:02:18.587429245Z"
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_missing_xcto",
+      "found_at": "2026-04-30T18:24:25.49443437Z"
     },
     {
-      "id": "WEB-MISSING-XFrameOptions",
+      "id": "API-M1-XFrameOptions",
       "title": "Missing security header: X-Frame-Options",
       "description": "Missing X-Frame-Options header. Application is vulnerable to clickjacking attacks.",
       "severity": "MEDIUM",
       "category": "web",
-      "found_at": "2026-04-30T18:02:18.587498807Z"
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_missing_xfo",
+      "found_at": "2026-04-30T18:24:25.49444331Z"
     },
     {
-      "id": "WEB-MISSING-ContentSecurityPolicy",
-      "title": "Missing security header: Content-Security-Policy",
+      "id": "API-M1-ContentSecurityPolicy",
+      "title": "Missing security header: CSP",
       "description": "Missing Content-Security-Policy header. This increases XSS and injection attack risks.",
       "severity": "MEDIUM",
       "category": "web",
-      "found_at": "2026-04-30T18:02:18.58751082Z"
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_missing_csp",
+      "found_at": "2026-04-30T18:24:25.494452319Z"
     },
     {
-      "id": "WEB-MISSING-ReferrerPolicy",
+      "id": "API-M1-ReferrerPolicy",
       "title": "Missing security header: Referrer-Policy",
       "description": "Missing Referrer-Policy header. This may leak sensitive information via Referer header.",
       "severity": "LOW",
       "category": "web",
-      "found_at": "2026-04-30T18:02:18.58751941Z"
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_missing_referrer",
+      "found_at": "2026-04-30T18:24:25.494464192Z"
     },
     {
-      "id": "WEB-MISSING-PermissionsPolicy",
+      "id": "API-M1-PermissionsPolicy",
       "title": "Missing security header: Permissions-Policy",
       "description": "Missing Permissions-Policy header. Browser features are not restricted.",
       "severity": "LOW",
       "category": "web",
-      "found_at": "2026-04-30T18:02:18.587544693Z"
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_missing_permissions",
+      "found_at": "2026-04-30T18:24:25.494501278Z"
     },
     {
-      "id": "WEB-DISCLOSURE-Server",
+      "id": "API-M1-StrictTransportSecurity",
+      "title": "Missing security header: HSTS",
+      "description": "Missing HSTS header. This allows SSL stripping attacks.",
+      "severity": "HIGH",
+      "category": "web",
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_missing_hsts",
+      "found_at": "2026-04-30T18:24:25.494511684Z"
+    },
+    {
+      "id": "WEB-B3-Server",
       "title": "Information disclosure via Server header",
       "description": "The Server header reveals Server technology and version: Apache. This information can help attackers identify known vulnerabilities.",
       "severity": "LOW",
       "category": "web",
-      "found_at": "2026-04-30T18:02:18.587562712Z"
+      "component": "https://cesarcancino.com",
+      "found_at": "2026-04-30T18:24:25.494529843Z"
     },
     {
-      "id": "WEB-CACHE-CONTROL",
+      "id": "API-B2",
       "title": "Missing or weak cache control directives",
       "description": "Responses do not include proper cache control headers. Sensitive data may be cached by browsers or proxies.",
       "severity": "LOW",
-      "category": "web",
-      "found_at": "2026-04-30T18:02:19.239075924Z"
+      "category": "api",
+      "component": "https://cesarcancino.com",
+      "recommendation": "rec.web_cache_control",
+      "found_at": "2026-04-30T18:24:26.023334927Z"
     },
     {
       "id": "WEB-PRAGMA",
@@ -82,7 +99,13 @@
       "description": "The Pragma header is not set to no-cache, which may allow caching by HTTP/1.0 proxies.",
       "severity": "LOW",
       "category": "web",
-      "found_at": "2026-04-30T18:02:19.239085004Z"
+      "found_at": "2026-04-30T18:24:26.023345333Z"
     }
-  ]
+  ],
+  "summary": {
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 5
+  }
 }

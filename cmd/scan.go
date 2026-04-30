@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/peligro/proyecto_ia_1/pkg/i18n"
 	"github.com/peligro/proyecto_ia_1/pkg/scanner"
 	"github.com/peligro/proyecto_ia_1/pkg/report"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var (
 	scanDir  string
 	scanURL  string
 	output   string
+	lang     string
 )
 
 var scanCmd = &cobra.Command{
@@ -32,11 +34,15 @@ func init() {
 	scanCmd.Flags().StringVarP(&scanDir, "dir", "d", ".", "Directory to scan")
 	scanCmd.Flags().StringVarP(&scanURL, "url", "u", "", "URL to scan (for web/api types)")
 	scanCmd.Flags().StringVarP(&output, "output", "o", "json", "Output format: json, markdown")
+	scanCmd.Flags().StringVarP(&lang, "lang", "l", "en", "Output language: en, es")
 
 	rootCmd.AddCommand(scanCmd)
 }
 
 func runScan() error {
+	// Inicializar traductor con el idioma seleccionado
+	i18n.T = i18n.NewTranslator(i18n.Lang(lang))
+
 	var findings []report.Finding
 	var err error
 
@@ -45,20 +51,19 @@ func runScan() error {
 		findings, err = scanDependencies()
 	case "web":
 		if scanURL == "" {
-			return fmt.Errorf("--url flag is required for web scan")
+			return fmt.Errorf(i18n.T.Get("msg.error_url_required"))
 		}
 		findings, err = scanWeb(scanURL)
 	case "api":
 		return fmt.Errorf("api scanner not implemented yet")
 	default:
-		return fmt.Errorf("invalid scan type: %s", scanType)
+		return fmt.Errorf(i18n.T.Get("msg.error_invalid_type"), scanType)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	// Generate report
 	return generateReport(findings)
 }
 
@@ -68,33 +73,29 @@ func scanDependencies() ([]report.Finding, error) {
 		return nil, err
 	}
 
-	fmt.Printf("🔍 Scanning dependencies in %s...\n", absPath)
+	fmt.Printf(i18n.T.Get("msg.scanning_deps")+"\n", absPath)
 
-	// Try to find package.json
 	pkgJSONPath := filepath.Join(absPath, "package.json")
 	if _, err := os.Stat(pkgJSONPath); err == nil {
 		return scanner.ScanNpmDependencies(pkgJSONPath)
 	}
 
-	// Try to find go.mod
 	goModPath := filepath.Join(absPath, "go.mod")
 	if _, err := os.Stat(goModPath); err == nil {
 		return scanner.ScanGoDependencies(goModPath)
 	}
 
-	return nil, fmt.Errorf("no supported dependency file found (package.json or go.mod)")
+	return nil, fmt.Errorf(i18n.T.Get("msg.error_no_deps"))
 }
 
 func scanWeb(target string) ([]report.Finding, error) {
-	fmt.Printf("🔍 Scanning web application: %s...\n", target)
+	fmt.Printf(i18n.T.Get("msg.scanning_web")+"\n", target)
 
-	// Instanciar scanner con timeout de 10 segundos
 	ws := scanner.NewWebScanner(10 * time.Second)
 	return ws.Scan(target)
 }
 
 func generateReport(findings []report.Finding) error {
-	// Determinar el target correcto
 	target := scanDir
 	if scanType == "web" && scanURL != "" {
 		target = scanURL
@@ -102,10 +103,10 @@ func generateReport(findings []report.Finding) error {
 
 	switch output {
 	case "json":
-		return report.GenerateJSON(findings, scanType, target)
+		return report.GenerateJSON(findings, scanType, target, i18n.T)
 	case "markdown":
-		return report.GenerateMarkdown(findings, scanType, target)
+		return report.GenerateMarkdown(findings, scanType, target, i18n.T)
 	default:
-		return report.GenerateJSON(findings, scanType, target)
+		return report.GenerateJSON(findings, scanType, target, i18n.T)
 	}
 }
