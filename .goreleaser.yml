@@ -1,4 +1,5 @@
-# .goreleaser.yml - Versión compatible con GoReleaser v1.x
+# .goreleaser.yml
+# Configuración para GoReleaser v1.x (compatible con GitHub Actions)
 project_name: ai-audit
 
 before:
@@ -66,12 +67,12 @@ release:
   prerelease: auto
   mode: replace
   header: |
-    ## 🔒 AI Audit Security Scanner v{{ .Version }}
+    ## 🔒 AI Audit Security Scanner v{{ .Tag }}
 
     Escáner de seguridad con IA para dependencias, web y APIs.
 
     ### ✨ Novedades
-    {{ .Changelog }}
+    {{ .ReleaseNotes }}
 
     ### 📦 Binarios disponibles
     - Linux (amd64, arm64)
@@ -81,11 +82,11 @@ release:
     ### 🚀 Uso rápido
     ```bash
     # Linux/macOS
-    curl -L https://github.com/peligro/proyecto_ia_1/releases/download/v{{ .Version }}/ai-audit_Linux_x86_64.tar.gz | tar xz
+    curl -L https://github.com/peligro/proyecto_ia_1/releases/download/v{{ .Tag }}/ai-audit_Linux_x86_64.tar.gz | tar xz
     ./ai-audit scan --type web --url https://tusitio.com --ai --output pdf
 
     # Windows (PowerShell)
-    Invoke-WebRequest -Uri https://github.com/peligro/proyecto_ia_1/releases/download/v{{ .Version }}/ai-audit_Windows_x86_64.zip -OutFile ai-audit.zip
+    Invoke-WebRequest -Uri https://github.com/peligro/proyecto_ia_1/releases/download/v{{ .Tag }}/ai-audit_Windows_x86_64.zip -OutFile ai-audit.zip
     Expand-Archive ai-audit.zip -DestinationPath .
     .\ai-audit.exe scan --type web --url https://tusitio.com --ai --output pdf
     ```

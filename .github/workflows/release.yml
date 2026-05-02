@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write  # Necesario para crear releases y subir assets
+  packages: write  # Opcional: si publicas en GitHub Container Registry
 
 jobs:
   goreleaser:
@@ -27,7 +28,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
-          version: latest
+          version: '~> v1'  # ← Fuerza GoReleaser v1.x para compatibilidad con tu config
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token automático de GitHub Actions
