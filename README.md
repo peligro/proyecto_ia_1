@@ -308,7 +308,7 @@ After installation, verify everything works:
 
 - 🐛 Report bugs: [Issues](https://github.com/peligro/proyecto_ia_1/issues)
 - 💡 Request features: [Discussions](https://github.com/peligro/proyecto_ia_1/discussions)
-- 📧 Contact: [cesar@cesarcancino.com](mailto:yo@cesarcancino.com)
+- 📧 Contact: [yo@cesarcancino.com](mailto:yo@cesarcancino.com)
 
 ---
 
