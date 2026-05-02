@@ -13,7 +13,7 @@
 
 ## 🌐 Translations
 
-[🇺🇸 English](README.md) • [🇪🇸 Español](README.es.md) • [🇫🇷 Français](README.fr.md) • [🇵 Português](README.pt.md) • [🇩 Deutsch](README.de.md)
+[🇺 English](README.md) • [🇪🇸 Español](README.es.md) • [🇫🇷 Français](README.fr.md) • [🇵🇹 Português](README.pt.md) • [🇩 Deutsch](README.de.md)
 
 ---
 
@@ -24,8 +24,7 @@
 curl -fsSL https://raw.githubusercontent.com/peligro/proyecto_ia_1/main/install.sh | bash
 ```
 
-
-## Scan a website with AI explanations (Spanish)
+### Scan a website with AI explanations (Spanish)
 
 
 ```bash
@@ -38,13 +37,13 @@ curl -fsSL https://raw.githubusercontent.com/peligro/proyecto_ia_1/main/install.
   --output pdf
 ```
 
-## Scan dependencies for vulnerabilities
+### Scan dependencies for vulnerabilities
 
 ```bash
 ./ai-audit scan --type deps --dir ./mi-proyecto --output markdown
 ```
 
-## Gray-box auth testing (BOLA/BFLA detection)
+### Gray-box auth testing (BOLA/BFLA detection)
 
 ```bash
 ./ai-audit scan \
@@ -57,28 +56,32 @@ curl -fsSL https://raw.githubusercontent.com/peligro/proyecto_ia_1/main/install.
   --output json
 ```
 
-## ✨ Features
+### 🌍 Internationalization (i18n)
 
-### 🔍 Multi-Mode Scanning
+- **5 languages**: English, Spanish, French, Portuguese, German
+- **AI responses in your language**: Prompts are localized, not just UI labels
+- **PDF reports with proper encoding**: Professional output for any audience
 
-| Mode | Description | Use Case |
-|------|-------------|----------|
-| `deps` | Scan npm/Go dependencies via [OSV.dev](https://osv.dev) | Find known CVEs in your packages |
-| `web` | Check HTTP headers, SSL/TLS, CORS, WAF detection | Security hardening for web apps |
-| `auth` | Gray-box testing for BOLA/BFLA (OWASP API Top 10 #1-2) | API security validation |
+### 📊 Professional Reporting
 
-### 🤖 AI-Powered Explanations
+| Format | Best For | Features |
+|--------|----------|----------|
+| `json` | Automation, CI/CD | Machine-readable, easy to parse |
+| `markdown` | Documentation, wikis | Human-readable, GitHub-friendly |
+| `pdf` | Client reports, executives | Styled layout, visual severity badges, print-ready |
 
-- **Natural language explanations** of vulnerabilities
-- **Actionable remediation steps** with code examples
-- **Multi-provider support**: Gemini, Mistral, DeepSeek, OpenAI
-- **Smart caching**: Avoid redundant API calls with `--cache-ai`
+### 🔐 Security-First Design
+
+- **Zero hardcoded secrets**: All API keys via env vars or `--key` flag
+- **No telemetry**: Your scans stay on your machine
+- **Open source**: Audit the code yourself
 
 ---
 
 ## 📦 Installation
 
 ### Option 1: Pre-built binaries (Recommended)
+
 Download from [Releases](https://github.com/peligro/proyecto_ia_1/releases):
 
 ```bash
@@ -95,7 +98,7 @@ Expand-Archive ai-audit.zip -DestinationPath .
 
 ### Option 2: Build from source
 
-# Requires Go 1.25+
+Requires Go 1.25+:
 
 ```bash
 git clone https://github.com/peligro/proyecto_ia_1.git
@@ -109,9 +112,41 @@ go build -o ai-audit -ldflags="-s -w" .
 curl -fsSL https://raw.githubusercontent.com/peligro/proyecto_ia_1/main/install.sh | bash
 ```
 
-## 🔧 Full Usage Reference
+## 🔧 Usage
 
+### Basic scan
 
+```bash
+./ai-audit scan --type web --url https://example.com
+```
+### With AI explanations (Mistral, Spanish output)
+
+```bash
+export MISTRAL_API_KEY=your_key_here
+./ai-audit scan \
+  --type web \
+  --url https://example.com \
+  --ai \
+  --provider mistral \
+  --lang es \
+  --output pdf
+```
+
+### Gray-box auth testing
+
+```bash
+./ai-audit scan \
+  --type auth \
+  --url https://api.example.com \
+  --graybox \
+  --admin-token "admin_jwt_here" \
+  --user-token "user_jwt_here" \
+  --endpoints "/api/users,/api/admin/settings" \
+  --ai \
+  --output markdown
+```
+
+### Full options reference
 
 ```bash
 ./ai-audit scan --help
@@ -140,12 +175,13 @@ curl -fsSL https://raw.githubusercontent.com/peligro/proyecto_ia_1/main/install.
 --endpoints strings        Endpoints to test (comma-separated)
 ```
 
+---
+
 ## 🤖 AI Providers Configuration
 
-### Configure via environment variables or flags:
+Configure via environment variables or flags:
 
-
-```env
+```bash
 # Gemini (Google)
 export GEMINI_API_KEY=your_key
 export GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/
@@ -167,64 +203,28 @@ export OPENAI_BASE_URL=https://api.openai.com/v1/
 export OPENAI_MODEL=gpt-4o-mini
 ```
 
-## 💡 Tip: Use --cache-ai to avoid redundant API calls. Cached responses are stored in ~/.ai-audit/cache/.
+### 💡 Tip: Use --cache-ai to avoid redundant API calls. Cached responses are stored in ~/.ai-audit/cache/.
 
----
 
 ## 🌍 Internationalization (i18n)
 
-The scanner supports 5 languages for both UI and AI prompts:
+| Code | Language | Example |
+|------|----------|---------|
+| `en` | English | `--lang en` |
+| `es` | Spanish | `--lang es` |
+| `fr` | French | `--lang fr` |
+| `pt` | Portuguese | `--lang pt` |
+| `de` | German | `--lang de` |
 
-<table>
-  <thead>
-    <tr>
-      <th>Code</th>
-      <th>Language</th>
-      <th>Example</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>en</code></td>
-      <td>English</td>
-      <td><code>--lang en</code></td>
-    </tr>
-    <tr>
-      <td><code>es</code></td>
-      <td>Spanish</td>
-      <td><code>--lang es</code></td>
-    </tr>
-    <tr>
-      <td><code>fr</code></td>
-      <td>French</td>
-      <td><code>--lang fr</code></td>
-    </tr>
-    <tr>
-      <td><code>pt</code></td>
-      <td>Portuguese</td>
-      <td><code>--lang pt</code></td>
-    </tr>
-    <tr>
-      <td><code>de</code></td>
-      <td>German</td>
-      <td><code>--lang de</code></td>
-    </tr>
-  </tbody>
-</table>
+### 🔐 Security Considerations
 
-> AI explanations are generated in the selected language, not just translated labels.
-
----
-
-## 🔐 Security Considerations
-
-### Your keys stay safe
+#### Your keys stay safe
 
 - ✅ API keys are **never hardcoded** — use env vars or `--key` flag
 - ✅ Binaries **do not embed secrets** — keys are read at runtime only
 - ✅ No telemetry or external calls beyond configured AI providers
 
-### Verify integrity
+#### Verify integrity
 
 ```bash
 # Download checksums for latest release
@@ -232,33 +232,85 @@ curl -L https://github.com/peligro/proyecto_ia_1/releases/latest/download/checks
 
 # Verify binary
 sha256sum -c checksums.txt
+```
+ 
 
+### Responsible disclosure
 
-Responsible disclosure
 Found a security issue in ai-audit itself? Please email [your-email@example.com] instead of opening a public issue.
-🤝 Contributing
-Contributions are welcome! Here's how to get started:
-Fork the repo
-Create a feature branch: git checkout -b feat/your-idea
-Make your changes + add tests
-Run linting: go fmt ./... && go vet ./...
-Submit a PR
-Development setup
+
+
 ---
 
-## 🔐 Security Considerations
+## 🤝 Contributing
 
-### Your keys stay safe
+Contributions are welcome! Here's how to get started:
 
-- ✅ API keys are **never hardcoded** — use env vars or `--key` flag
-- ✅ Binaries **do not embed secrets** — keys are read at runtime only
-- ✅ No telemetry or external calls beyond configured AI providers
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feat/your-idea`
+3. Make your changes + add tests
+4. Run linting: `go fmt ./... && go vet ./...`
+5. Submit a PR
 
-### Verify integrity
+### Development setup
 
 ```bash
-# Download checksums for latest release
-curl -L https://github.com/peligro/proyecto_ia_1/releases/latest/download/checksums.txt
+# Clone and enter project
+git clone https://github.com/peligro/proyecto_ia_1.git
+cd proyecto_ia_1/golang
 
-# Verify binary
-sha256sum -c checksums.txt
+# Create .env for local testing (never commit this!)
+cp .env.example .env
+# Edit .env with your API keys
+
+# Run tests
+go test ./...
+
+# Build and run
+go build -o ai-audit .
+./ai-audit --help
+```
+
+### Adding a new language
+
+- Create pkg/i18n/xx.go with xxDict() function
+- Add the language constant in pkg/i18n/i18n.go
+- Update this README's translation table
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 🙏 Acknowledgments
+
+- [OSV.dev](https://osv.dev) for vulnerability data
+- [OWASP](https://owasp.org) for security guidelines
+- [chromedp](https://github.com/chromedp/chromedp) for PDF generation
+- [gofpdf](https://github.com/jung-kurt/gofpdf) for fallback PDF rendering
+- All AI providers for making intelligent explanations accessible
+
+## 🚀 Quick Verification
+
+After installation, verify everything works:
+
+```bash
+# Check version
+./ai-audit version
+# Output: ai-audit version v0.2.6
+
+# Run a quick scan
+./ai-audit scan --type web --url https://httpbin.org --output json | head -20
+```
+
+## 📬 Support & Feedback
+
+- 🐛 Report bugs: [Issues](https://github.com/peligro/proyecto_ia_1/issues)
+- 💡 Request features: [Discussions](https://github.com/peligro/proyecto_ia_1/discussions)
+- 📧 Contact: [cesar@cesarcancino.com](mailto:yo@cesarcancino.com)
+
+---
+
+> **Built with ❤️ by [@peligro](https://github.com/peligro)**  
+> *Scan smarter, fix faster, sleep better.* 🔒✨
