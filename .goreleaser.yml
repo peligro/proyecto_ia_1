@@ -1,4 +1,5 @@
-version: 2
+# .goreleaser.yml - Versión compatible con GoReleaser v1.x
+project_name: ai-audit
 
 before:
   hooks:
