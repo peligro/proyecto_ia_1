@@ -16,15 +16,15 @@ import (
 )
 
 // GeneratePDF genera un reporte PDF profesional
-// Intenta chromedp primero (alta calidad con CSS), fallback a gofpdf (básico pero funcional)
+// Intenta chromedp primero (alta calidad con CSS), fallback a gofpdf con diseño limpio
 func GeneratePDF(findings []Finding, scanType, target string) error {
 	// Intentar chromedp primero (PDF profesional con CSS)
 	if err := generatePDFWithChrome(findings, scanType, target); err == nil {
 		return nil
 	}
 	
-	// Fallback a gofpdf si chromedp falla
-	return generatePDFWithGofpdf(findings, scanType, target)
+	// Fallback a gofpdf con diseño visual mejorado (sin dependencia de fuentes externas)
+	return generatePDFWithGofpdfStyled(findings, scanType, target)
 }
 
 // generatePDFWithChrome intenta generar PDF con chromedp (Chrome headless)
@@ -35,14 +35,12 @@ func generatePDFWithChrome(findings []Finding, scanType, target string) error {
 
 	htmlContent := generateHTML(findings, scanType, target)
 	
-	// Servidor HTTP temporal para servir el HTML
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, htmlContent)
 	}))
 	defer server.Close()
 	
-	// Configurar Chrome headless con flags para Docker
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("disable-gpu", true),
@@ -55,25 +53,26 @@ func generatePDFWithChrome(findings []Finding, scanType, target string) error {
 		chromedp.Flag("window-size", "1920,1080"),
 		chromedp.Flag("hide-scrollbars", true),
 		chromedp.Flag("mute-audio", true),
+		chromedp.Flag("disable-extensions", true),
+		chromedp.Flag("disable-background-networking", true),
+		chromedp.Flag("disable-sync", true),
+		chromedp.Flag("metrics-recording-only", true),
 	)
 	
-	// 1. Crear allocator
 	allocCtx, allocCancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer allocCancel()
 	
-	// 2. Crear contexto chromedp (devuelve 2 valores)
 	chromedpCtx, chromedpCancel := chromedp.NewContext(allocCtx)
 	defer chromedpCancel()
 	
-	// 3. Agregar timeout al contexto chromedp
-	ctx, timeoutCancel := context.WithTimeout(chromedpCtx, 30*time.Second)
+	ctx, timeoutCancel := context.WithTimeout(chromedpCtx, 60*time.Second)
 	defer timeoutCancel()
 	
 	var buf []byte
 	if err := chromedp.Run(ctx,
-		chromedp.Sleep(500*time.Millisecond),
+		chromedp.Sleep(800*time.Millisecond),
 		chromedp.Navigate(server.URL),
-		chromedp.Sleep(2*time.Second),
+		chromedp.Sleep(2500*time.Millisecond),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
 			buf, _, err = page.PrintToPDF().
@@ -95,79 +94,120 @@ func generatePDFWithChrome(findings []Finding, scanType, target string) error {
 		return fmt.Errorf("failed to write PDF: %w", err)
 	}
 	
-	fmt.Printf("✅ Reporte PDF guardado en %s\n", pdfPath)
+	fmt.Printf("✅ Reporte PDF guardado en %s (modo profesional)\n", pdfPath)
 	return nil
 }
 
-// generatePDFWithGofpdf genera PDF básico como fallback (sin Chrome)
-// Nota: Helvetica no soporta UTF-8 nativo, los acentos se verán como "?" o caracteres extraños
-// Para UTF-8 perfecto, instalar Chromium y que funcione chromedp
-func generatePDFWithGofpdf(findings []Finding, scanType, target string) error {
+// generatePDFWithGofpdfStyled genera PDF con diseño visual mejorado usando Helvetica
+// Sin dependencia de fuentes externas - siempre funciona
+func generatePDFWithGofpdfStyled(findings []Finding, scanType, target string) error {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	pdf.SetMargins(15, 15, 15)
 	
-	// Usar Helvetica directamente (sin AddUTF8Font para evitar dependencias externas)
+	// Usar Helvetica siempre (compatible, sin UTF-8 perfecto pero funcional)
 	pdf.SetFont("Helvetica", "", 10)
 	
-	// === HEADER ===
-	pdf.SetFont("Helvetica", "B", 14)
-	pdf.Cell(0, 10, "Informe de Analisis de Ciberseguridad")  // Sin acentos para evitar problemas
-	pdf.Ln(6)
+	// === HEADER CON ESTILO ===
+	pdf.SetFillColor(44, 62, 80) // #2c3e50 - azul oscuro profesional
+	pdf.SetTextColor(255, 255, 255) // blanco
+	pdf.SetFont("Helvetica", "B", 16)
+	pdf.CellFormat(180, 10, "Informe de Ciberseguridad", "", 1, "C", true, 0, "")
+	pdf.Ln(2)
 	
+	pdf.SetFillColor(236, 240, 241) // #ecf0f1 - gris claro
+	pdf.SetTextColor(52, 73, 94) // #34495e - texto oscuro
 	pdf.SetFont("Helvetica", "", 9)
-	pdf.Cell(0, 5, fmt.Sprintf("AI Audit Security Scanner | Target: %s", target))
-	pdf.Ln(4)
-	pdf.Cell(0, 5, fmt.Sprintf("Fecha: %s", time.Now().Format("2006-01-02 15:04:05")))
+	pdf.CellFormat(180, 6, fmt.Sprintf("AI Audit Scanner | %s", target), "", 1, "C", true, 0, "")
+	pdf.CellFormat(180, 5, fmt.Sprintf("Fecha: %s", time.Now().Format("2006-01-02 15:04")), "", 1, "C", true, 0, "")
 	pdf.Ln(8)
 	
-	// === RESUMEN EJECUTIVO ===
-	summary := calculateSummary(findings)
-	
-	pdf.SetFont("Helvetica", "B", 11)
+	// === RESUMEN EJECUTIVO CON CARDS VISUALES ===
+	pdf.SetFont("Helvetica", "B", 12)
+	pdf.SetTextColor(44, 62, 80)
 	pdf.Cell(0, 6, "Resumen Ejecutivo")
 	pdf.Ln(5)
 	
-	pdf.SetFont("Helvetica", "", 9)
-	summaryText := fmt.Sprintf("Total vulnerabilidades: %d (Criticas: %d, Altas: %d, Medias: %d, Bajas: %d)",
-		len(findings), summary.Critical, summary.High, summary.Medium, summary.Low)
-	pdf.MultiCell(0, 4, summaryText, "", "L", false)
-	pdf.Ln(4)
+	summary := calculateSummary(findings)
 	
-	// === DETALLE DE VULNERABILIDADES ===
-	pdf.SetFont("Helvetica", "B", 11)
-	pdf.Cell(0, 6, "Detalle de Vulnerabilidades")
+	// Cards de severidad con colores
+	cards := []struct{
+		label string
+		count int
+		r,g,b int
+	}{
+		{"CRITICAS", summary.Critical, 231, 76, 60},   // rojo
+		{"ALTAS", summary.High, 230, 126, 34},          // naranja
+		{"MEDIAS", summary.Medium, 241, 196, 15},       // amarillo
+		{"BAJAS", summary.Low, 39, 174, 96},            // verde
+	}
+	
+	pdf.SetFont("Helvetica", "B", 10)
+	for _, card := range cards {
+		pdf.SetFillColor(card.r, card.g, card.b)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.CellFormat(43, 8, fmt.Sprintf("%s: %d", card.label, card.count), "", 0, "C", true, 0, "")
+	}
+	pdf.Ln(10)
+	
+	pdf.SetTextColor(0, 0, 0)
+	pdf.SetFont("Helvetica", "", 9)
+	pdf.MultiCell(0, 4, fmt.Sprintf("Total: %d vulnerabilidades detectadas en el escaneo", len(findings)), "", "L", false)
 	pdf.Ln(5)
 	
-	for _, f := range findings {
-		// ID y título (limpiar acentos para Helvetica)
-		pdf.SetFont("Helvetica", "B", 9)
-		title := stripAccents(f.Title)
-		pdf.Cell(0, 5, fmt.Sprintf("[%s] %s", f.ID, title))
-		pdf.Ln(4)
+	// === DETALLE DE VULNERABILIDADES ===
+	pdf.SetFont("Helvetica", "B", 12)
+	pdf.SetTextColor(44, 62, 80)
+	pdf.Cell(0, 6, "Detalle de Hallazgos")
+	pdf.Ln(5)
+	
+	for i, f := range findings {
+		// Header del finding con color por severidad
+		switch f.Severity {
+		case "CRITICAL": pdf.SetFillColor(231, 76, 60)
+		case "HIGH": pdf.SetFillColor(230, 126, 34)
+		case "MEDIUM": pdf.SetFillColor(241, 196, 15)
+		case "LOW": pdf.SetFillColor(39, 174, 96)
+		default: pdf.SetFillColor(149, 165, 166)
+		}
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFont("Helvetica", "B", 10)
+		pdf.CellFormat(30, 6, f.ID, "", 0, "L", true, 0, "")
+		pdf.CellFormat(20, 6, string(f.Severity), "", 0, "C", true, 0, "")
+		pdf.SetFillColor(236, 240, 241)
+		pdf.SetTextColor(44, 62, 80)
+		pdf.CellFormat(130, 6, stripAccents(f.Title), "", 1, "L", true, 0, "")
 		
 		// Metadata
 		pdf.SetFont("Helvetica", "", 8)
-		category := stripAccents(f.Category)
-		metaText := fmt.Sprintf("Severidad: %s | Categoria: %s", f.Severity, category)
-		pdf.MultiCell(0, 3.5, metaText, "", "L", false)
+		pdf.SetTextColor(100, 100, 100)
+		pdf.Cell(0, 4, fmt.Sprintf("Categoria: %s", stripAccents(f.Category)))
+		pdf.Ln(4)
 		
-		// Descripción (limpiar markdown y acentos)
-		cleanDesc := stripAccents(cleanMarkdownForPDF(f.Description))
-		pdf.MultiCell(0, 3.5, "Descripcion: "+cleanDesc, "", "L", false)
+		// Descripcion
+		pdf.SetTextColor(0, 0, 0)
+		pdf.MultiCell(0, 3.5, "Desc: "+stripAccents(cleanMarkdownForPDF(f.Description)), "", "L", false)
 		
-		// Recomendación (si existe)
+		// Recomendacion destacada
 		if f.Recommendation != "" {
-			cleanRec := stripAccents(cleanMarkdownForPDF(f.Recommendation))
-			pdf.MultiCell(0, 3.5, "Recomendacion: "+cleanRec, "", "L", false)
+			pdf.Ln(2)
+			pdf.SetFillColor(232, 246, 243) // verde claro
+			pdf.SetTextColor(22, 160, 133) // verde oscuro
+			pdf.SetFont("Helvetica", "I", 8)
+			pdf.MultiCell(0, 3.5, "Recomendacion: "+stripAccents(cleanMarkdownForPDF(f.Recommendation)), "", "L", true)
+			pdf.SetTextColor(0, 0, 0)
+			pdf.SetFont("Helvetica", "", 8)
 		}
 		
 		// Separador
-		pdf.Ln(2)
-		pdf.Line(15, pdf.GetY(), 195, pdf.GetY())
 		pdf.Ln(3)
+		if i < len(findings)-1 {
+			pdf.SetDrawColor(200, 200, 200)
+			pdf.Line(15, pdf.GetY(), 195, pdf.GetY())
+			pdf.Ln(4)
+		}
 		
-		// Nueva página si se acaba el espacio
+		// Nueva pagina si es necesario
 		if pdf.GetY() > 250 {
 			pdf.AddPage()
 		}
@@ -176,44 +216,50 @@ func generatePDFWithGofpdf(findings []Finding, scanType, target string) error {
 	// === FOOTER ===
 	pdf.SetY(-15)
 	pdf.SetFont("Helvetica", "I", 8)
-	pdf.Cell(0, 5, "Generado por AI Audit Security Scanner | github.com/peligro/proyecto_ia_1")
+	pdf.SetTextColor(127, 140, 141)
+	pdf.Cell(0, 5, "AI Audit Security Scanner | github.com/peligro/proyecto_ia_1")
 	
-	// Guardar PDF
 	pdfPath := "report.pdf"
 	if err := pdf.OutputFileAndClose(pdfPath); err != nil {
 		return fmt.Errorf("failed to write PDF: %w", err)
 	}
 	
-	fmt.Printf("✅ Reporte PDF guardado en %s (modo basico)\n", pdfPath)
+	fmt.Printf("✅ Reporte PDF guardado en %s (diseno visual mejorado)\n", pdfPath)
 	return nil
 }
 
-// stripAccents reemplaza caracteres acentuados por equivalentes sin acento para compatibilidad con Helvetica
+// stripAccents convierte caracteres acentuados a equivalentes sin acento
 func stripAccents(s string) string {
 	replacements := map[string]string{
+		// Vocales con acento agudo
 		"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u",
 		"Á": "A", "É": "E", "Í": "I", "Ó": "O", "Ú": "U",
-		"ñ": "n", "Ñ": "N", "ü": "u", "Ü": "U",
+		// Vocales con acento grave
+		"à": "a", "è": "e", "ì": "i", "ò": "o", "ù": "u",
+		"À": "A", "È": "E", "Ì": "I", "Ò": "O", "Ù": "U",
+		// Vocales con diéresis (umlaut) - SIN DUPLICADOS
+		"ä": "a", "ë": "e", "ï": "i", "ö": "o", "ü": "u",
+		"Ä": "A", "Ë": "E", "Ï": "I", "Ö": "O", "Ü": "U",
+		// Ñ
+		"ñ": "n", "Ñ": "N",
+		// Otros caracteres comunes
+		"ç": "c", "Ç": "C",
 	}
-	for accented, plain := range replacements {
-		s = strings.ReplaceAll(s, accented, plain)
+	for acc, plain := range replacements {
+		s = strings.ReplaceAll(s, acc, plain)
 	}
 	return s
 }
 
 // cleanMarkdownForPDF limpia markdown para renderizado en PDF plano
 func cleanMarkdownForPDF(text string) string {
-	// Remover bloques de código markdown
 	text = strings.ReplaceAll(text, "```markdown", "")
 	text = strings.ReplaceAll(text, "```", "")
-	
-	// Remover formatos markdown básicos
 	text = strings.ReplaceAll(text, "**", "")
 	text = strings.ReplaceAll(text, "__", "")
 	text = strings.ReplaceAll(text, "*", "")
 	text = strings.ReplaceAll(text, "_", "")
 	
-	// Remover encabezados markdown
 	lines := strings.Split(text, "\n")
 	cleaned := []string{}
 	for _, line := range lines {
@@ -225,11 +271,10 @@ func cleanMarkdownForPDF(text string) string {
 			cleaned = append(cleaned, line)
 		}
 	}
-	
 	return strings.Join(cleaned, " ")
 }
 
-// isChromeAvailable verifica si Chrome/Chromium está en PATH
+// isChromeAvailable verifica si Chrome/Chromium esta en PATH
 func isChromeAvailable() bool {
 	binaries := []string{"chromium", "chromium-browser", "google-chrome", "chrome"}
 	for _, bin := range binaries {
