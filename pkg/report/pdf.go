@@ -250,7 +250,7 @@ func stripAccents(s string) string {
 	}
 	return s
 }
-
+ 
 // cleanMarkdownForPDF limpia markdown para renderizado en PDF plano
 func cleanMarkdownForPDF(text string) string {
 	text = strings.ReplaceAll(text, "```markdown", "")
